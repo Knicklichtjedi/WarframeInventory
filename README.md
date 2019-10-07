@@ -1,0 +1,1 @@
+Little hobby project to create a Warframe Inventory app, that reads the screen, calculates prices and offers to post the items directly to http://warframe.market using their API.
