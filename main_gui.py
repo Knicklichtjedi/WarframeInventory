@@ -1,5 +1,4 @@
 import PySimpleGUI as sg
-from PIL import Image, ImageDraw
 import image_grabber
 import image_reader
 import wf_market_request
