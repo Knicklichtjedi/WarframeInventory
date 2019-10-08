@@ -66,7 +66,9 @@ def image_container(x, y, width, height, mates):
         data = 'No data found for "{}"'.format(request_name)
 
         try:
-            data = wf_market_request.request_item_prices(request_name)
+            print()
+            # TODO item name REGEX filter to clean unwanted letters
+            # data = wf_market_request.request_item_prices(request_name)
         except HTTPError or UnicodeEncodeError:
             print('Site not found!')
 
@@ -84,7 +86,7 @@ def image_container(x, y, width, height, mates):
 
     layout = [
         [sg.Text('Captured Relic Data')],
-        [sg.Image(filename=image_path('capture'))],
+        [sg.Image(filename=image_path('capture_raw'))],
         [sg.Text(str(formatted_text))],
         [sg.Text(str(formatted_items))],
     ]

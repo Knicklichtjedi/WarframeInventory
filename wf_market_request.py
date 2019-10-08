@@ -35,9 +35,15 @@ def webservice_get_request(url):
 
 
 def request_item_prices(request_item_name):
-    items = api_get_request(ITEMS_URL(request_item_name))['payload']['orders']
+    request_items = api_get_request(ITEMS_URL(request_item_name))
+
+    if request_items is None:
+        return 'No items found!'
+
+    items = request_items['payload']['orders']
     avg_price = -1
     length = len(items)
+
     for item in items:
         avg_price += item['platinum']
 
