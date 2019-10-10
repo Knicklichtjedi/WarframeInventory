@@ -1,11 +1,12 @@
 import cv2
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageGrab
 from matplotlib import pyplot as plt
 
 import image_reader
 
 image_path = './images/{}.png'.format
+fissure_path = './fissures/{}.png'.format
 BINARY_THRESHOLD = 255
 
 
@@ -27,13 +28,18 @@ def image_smoothening(img):
 
 
 def image_binarization(img):
-    # filtered = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY, 11, 2)
     img = cv2.medianBlur(img, 3)
-    filtered = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 11, 7)
-    # filtered = cv2.adaptiveThreshold(img.astype(np.uint8), 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, 5, 41)
 
+    # blockSize Size of a pixel neighborhood that is used to calculate a threshold value for the.
+    # pixel: 3, 5, 7, and so on.
+
+    # C Constant subtracted from the mean or weighted mean (see the details below). Normally, it. is positive but may be
+    # zero or negative as well.
+    filtered = cv2.adaptiveThreshold(img, 255, cv2.ADAPTIVE_THRESH_MEAN_C, cv2.THRESH_BINARY, blockSize=11, C=7)
     cv2.imwrite(image_path('capture_filtered'), filtered)
 
+    # http://www9.in.tum.de/seminare/ps.SS06.gdbv/ausarbeitungen/psbv-ss06-morphologie-karakoc.pdf
+    # https://docs.opencv.org/trunk/d9/d61/tutorial_py_morphological_ops.html
     kernel = np.ones((2, 2), np.uint8)
     opening = cv2.morphologyEx(filtered, cv2.MORPH_OPEN, kernel)
     closing = cv2.morphologyEx(opening, cv2.MORPH_CLOSE, kernel)
@@ -45,20 +51,25 @@ def image_binarization(img):
 
 def grab_image(x, y, width, height, mates):
     # bbox specifies specific region (bbox= x,y,width,height *starts top-left)
-    img = Image.open(image_path('fissure_0')).crop((x, y, x + width, y + height))
-    # img = ImageGrab.grab(bbox=(x, y, width, height))
+    # img = Image.open(fissure_path('fissure_0')).crop((x, y, x + width, y + height))
+    img = ImageGrab.grab(bbox=(x, y, x + width, y + height))
 
     img = image_rescaling(img)
     img.save(image_path('capture_raw'), dpi=(300, 300))
 
-    img = cv2.imread(image_path('capture_raw', 0))
+    # CONVERT TO NUMPY ARRAY
+    img = np.array(img)
+    # img = cv2.imread(image_path('capture_raw', 0))
+
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     img = cv2.bitwise_not(img)
     img = image_binarization(img)
 
     cv2.imwrite(image_path('capture_preprocessed'), img)
 
-    img = Image.open(image_path('capture_preprocessed'))
+    # CONVERT TO PIL OBJECT
+    img = Image.fromarray(img)
+    # img = Image.open(image_path('capture_preprocessed'))
 
     width_per_mate = width / 4
     for i in range(0, mates):

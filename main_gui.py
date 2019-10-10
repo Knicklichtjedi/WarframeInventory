@@ -65,10 +65,15 @@ def image_container(x, y, width, height, mates):
         request_name = item.lower().strip().replace(' ', '_')
         data = 'No data found for "{}"'.format(request_name)
 
+        if request_name == 'forma_blueprint':
+            data = 'Forma Blueprint can not be sold!'
+            items.append(data)
+            continue
+
         try:
             print()
             # TODO item name REGEX filter to clean unwanted letters
-            # data = wf_market_request.request_item_prices(request_name)
+            data = wf_market_request.request_item_prices(request_name)
         except HTTPError or UnicodeEncodeError:
             print('Site not found!')
 
@@ -91,7 +96,8 @@ def image_container(x, y, width, height, mates):
         [sg.Text(str(formatted_items))],
     ]
 
-    window = sg.Window('Screen Capture', layout)
+    window = sg.Window('Screen Capture', layout, keep_on_top=True)
+    window.bring_to_front()
     while True:
         event, values = window.read()
         if event in (None, ''):  # if user closes window
@@ -101,3 +107,5 @@ def image_container(x, y, width, height, mates):
 
 
 full_window()
+
+# pyinstaller main_gui.py
